@@ -1,0 +1,278 @@
+[
+  {
+    "problem": "max_subarray",
+    "sample": 0,
+    "code": "def max_subarray(nums: list[int]) -> int:\n    \"\"\"Return the largest sum of a non\u2011empty contiguous subarray.\n\n    Uses Kadane's algorithm in O(n) time and O(1) extra space.\n    \"\"\"\n    # Initialise with the first element to handle all\u2011negative lists\n    max_ending_here = max_so_far = nums[0]\n    for x in nums[1:]:\n        # Either extend the current subarray or start a new one at x\n        max_ending_here = max(x, max_ending_here + x)\n        # Update global maximum if needed\n        max_so_far = max(max_so_far, max_ending_here)\n    return max_so_far\n",
+    "results": {
+      "base": {
+        "status": "pass",
+        "count": 2
+      },
+      "edge": {
+        "status": "pass",
+        "count": 5
+      },
+      "random": {
+        "status": "pass",
+        "count": 40
+      },
+      "stress": {
+        "status": "pass",
+        "count": 2
+      }
+    }
+  },
+  {
+    "problem": "count_inversions",
+    "sample": 0,
+    "code": "def count_inversions(arr: list[int]) -> int:\n    \"\"\"Count pairs (i, j) with i < j and arr[i] > arr[j]. 0 <= len(arr) <= 10^5.\"\"\"\n    n = len(arr)\n    if n < 2:\n        return 0\n\n    temp = [0] * n\n\n    def merge_sort(left: int, right: int) -> int:\n        \"\"\"Sort arr[left:right] and return inversion count.\"\"\"\n        if right - left <= 1:\n            return 0\n        mid = (left + right) // 2\n        inv = merge_sort(left, mid) + merge_sort(mid, right)\n\n        i, j, k = left, mid, left\n        while i < mid and j < right:\n            if arr[i] <= arr[j]:\n                temp[k] = arr[i]\n                i += 1\n            else:\n                temp[k] = arr[j]\n                inv += mid - i   # all remaining elements in left part are > arr[j]\n                j += 1\n            k += 1\n\n        # copy remaining elements\n        while i < mid:\n            temp[k] = arr[i]\n            i += 1\n            k += 1\n        while j < right:\n            temp[k] = arr[j]\n            j += 1\n            k += 1\n\n        # write back to original array\n        arr[left:right] = temp[left:right]\n        return inv\n\n    return merge_sort(0, n)\n",
+    "results": {
+      "base": {
+        "status": "pass",
+        "count": 2
+      },
+      "edge": {
+        "status": "pass",
+        "count": 5
+      },
+      "random": {
+        "status": "pass",
+        "count": 40
+      },
+      "stress": {
+        "status": "pass",
+        "count": 2
+      }
+    }
+  },
+  {
+    "problem": "merge_intervals",
+    "sample": 0,
+    "code": "def merge_intervals(intervals: list[list[int]]) -> list[list[int]]:\n    \"\"\"Merge overlapping closed intervals [start, end] and return them sorted by start.\n    Intervals that touch (end == next start) count as overlapping. Input may be unsorted.\n    >>> merge_intervals([[1, 3], [2, 6], [8, 10]])\n    [[1, 6], [8, 10]]\n    >>> merge_intervals([[1, 4], [5, 6]])\n    [[1, 4], [5, 6]]\n    \"\"\"\n    if not intervals:\n        return []\n\n    # Sort by start, then by end to ensure deterministic order\n    intervals.sort(key=lambda x: (x[0], x[1]))\n\n    merged: list[list[int]] = []\n    cur_start, cur_end = intervals[0]\n\n    for start, end in intervals[1:]:\n        if start <= cur_end:  # overlapping or touching\n            if end > cur_end:\n                cur_end = end\n        else:\n            merged.append([cur_start, cur_end])\n            cur_start, cur_end = start, end\n\n    merged.append([cur_start, cur_end])\n    return merged\n",
+    "results": {
+      "base": {
+        "status": "pass",
+        "count": 2
+      },
+      "edge": {
+        "status": "pass",
+        "count": 6
+      },
+      "random": {
+        "status": "pass",
+        "count": 40
+      },
+      "stress": {
+        "status": "pass",
+        "count": 2
+      }
+    }
+  },
+  {
+    "problem": "longest_unique_substring",
+    "sample": 0,
+    "code": "def longest_unique_substring(s: str) -> int:\n    \"\"\"\n    Length of the longest substring without repeating characters.\n    0 <= len(s) <= 10^5.\n\n    >>> longest_unique_substring(\"abcabcbb\")\n    3\n    >>> longest_unique_substring(\"pwwkew\")\n    3\n    \"\"\"\n    last_seen = {}\n    max_len = 0\n    start = 0  # left boundary of the current window\n\n    for i, ch in enumerate(s):\n        if ch in last_seen and last_seen[ch] >= start:\n            # Move the start to one past the previous occurrence\n            start = last_seen[ch] + 1\n        last_seen[ch] = i\n        max_len = max(max_len, i - start + 1)\n\n    return max_len\n",
+    "results": {
+      "base": {
+        "status": "pass",
+        "count": 2
+      },
+      "edge": {
+        "status": "pass",
+        "count": 7
+      },
+      "random": {
+        "status": "pass",
+        "count": 40
+      },
+      "stress": {
+        "status": "pass",
+        "count": 2
+      }
+    }
+  },
+  {
+    "problem": "valid_brackets",
+    "sample": 0,
+    "code": "def valid_brackets(s: str) -> bool:\n    \"\"\"True if every bracket in s is closed in the right order. s contains only ()[]{} characters.\n    >>> valid_brackets(\"()[]{}\")\n    True\n    >>> valid_brackets(\"(]\")\n    False\n    \"\"\"\n    # Mapping of closing to opening brackets\n    pairs = {')': '(', ']': '[', '}': '{'}\n    stack = []\n\n    for ch in s:\n        if ch in pairs.values():          # opening bracket\n            stack.append(ch)\n        else:                             # closing bracket\n            if not stack or stack[-1] != pairs[ch]:\n                return False\n            stack.pop()\n\n    return not stack\n",
+    "results": {
+      "base": {
+        "status": "pass",
+        "count": 2
+      },
+      "edge": {
+        "status": "pass",
+        "count": 8
+      },
+      "random": {
+        "status": "pass",
+        "count": 40
+      },
+      "stress": {
+        "status": "pass",
+        "count": 2
+      }
+    }
+  },
+  {
+    "problem": "min_coins",
+    "sample": 0,
+    "code": "def min_coins(coins: list[int], amount: int) -> int:\n    \"\"\"Fewest coins (unlimited supply of each) that sum to amount, or -1 if impossible.\n    1 <= len(coins) <= 12, 1 <= coins[i] <= 10^4, 0 <= amount <= 10^4.\n    >>> min_coins([1, 2, 5], 11)\n    3\n    >>> min_coins([2], 3)\n    -1\n    \"\"\"\n    # Edge case: amount is zero \u2013 no coins needed\n    if amount == 0:\n        return 0\n\n    INF = amount + 1  # any value > amount is effectively infinite\n    dp = [INF] * (amount + 1)\n    dp[0] = 0\n\n    for a in range(1, amount + 1):\n        for c in coins:\n            if c <= a:\n                # If using coin c leads to a smaller count, update dp[a]\n                if dp[a - c] + 1 < dp[a]:\n                    dp[a] = dp[a - c] + 1\n\n    return dp[amount] if dp[amount] != INF else -1\n",
+    "results": {
+      "base": {
+        "status": "pass",
+        "count": 2
+      },
+      "edge": {
+        "status": "pass",
+        "count": 7
+      },
+      "random": {
+        "status": "pass",
+        "count": 40
+      },
+      "stress": {
+        "status": "pass",
+        "count": 2
+      }
+    }
+  },
+  {
+    "problem": "spiral_order",
+    "sample": 0,
+    "code": "def spiral_order(matrix: list[list[int]]) -> list[int]:\n    \"\"\"Return the elements of an m x n matrix in clockwise spiral order, starting top-left.\n    0 <= m, n <= 300.\n    >>> spiral_order([[1, 2, 3], [4, 5, 6], [7, 8, 9]])\n    [1, 2, 3, 6, 9, 8, 7, 4, 5]\n    \"\"\"\n    if not matrix or not matrix[0]:\n        return []\n\n    m, n = len(matrix), len(matrix[0])\n    top, bottom = 0, m - 1\n    left, right = 0, n - 1\n    result: list[int] = []\n\n    while top <= bottom and left <= right:\n        # top row\n        for j in range(left, right + 1):\n            result.append(matrix[top][j])\n        top += 1\n\n        # right column\n        for i in range(top, bottom + 1):\n            result.append(matrix[i][right])\n        right -= 1\n\n        if top <= bottom:\n            # bottom row\n            for j in range(right, left - 1, -1):\n                result.append(matrix[bottom][j])\n            bottom -= 1\n\n        if left <= right:\n            # left column\n            for i in range(bottom, top - 1, -1):\n                result.append(matrix[i][left])\n            left += 1\n\n    return result\n",
+    "results": {
+      "base": {
+        "status": "pass",
+        "count": 1
+      },
+      "edge": {
+        "status": "pass",
+        "count": 7
+      },
+      "random": {
+        "status": "pass",
+        "count": 40
+      },
+      "stress": {
+        "status": "pass",
+        "count": 2
+      }
+    }
+  },
+  {
+    "problem": "count_primes",
+    "sample": 0,
+    "code": "def count_primes(n: int) -> int:\n    \"\"\"Number of primes strictly less than n. 0 <= n <= 5*10^6.\"\"\"\n    if n <= 2:\n        return 0\n    # Sieve of Eratosthenes up to n-1\n    size = n\n    is_prime = bytearray(b'\\x01') * size\n    is_prime[0:2] = b'\\x00\\x00'          # 0 and 1 are not prime\n    limit = int(n ** 0.5) + 1\n    for p in range(2, limit):\n        if is_prime[p]:\n            step = p\n            start = p * p\n            is_prime[start:size:step] = b'\\x00' * ((size - start - 1) // step + 1)\n    return sum(is_prime[:n])\n",
+    "results": {
+      "base": {
+        "status": "pass",
+        "count": 2
+      },
+      "edge": {
+        "status": "pass",
+        "count": 6
+      },
+      "random": {
+        "status": "pass",
+        "count": 40
+      },
+      "stress": {
+        "status": "pass",
+        "count": 2
+      }
+    }
+  },
+  {
+    "problem": "count_pairs_with_sum",
+    "sample": 0,
+    "code": "def count_pairs_with_sum(nums: list[int], target: int) -> int:\n    \"\"\"\n    Count index pairs (i, j) with i < j and nums[i] + nums[j] == target.\n    0 <= len(nums) <= 10^5.\n\n    >>> count_pairs_with_sum([1, 5, 7, -1], 6)\n    2\n    >>> count_pairs_with_sum([1, 2, 3], 10)\n    0\n    \"\"\"\n    seen = {}\n    count = 0\n    for num in nums:\n        complement = target - num\n        count += seen.get(complement, 0)\n        seen[num] = seen.get(num, 0) + 1\n    return count\n",
+    "results": {
+      "base": {
+        "status": "pass",
+        "count": 2
+      },
+      "edge": {
+        "status": "pass",
+        "count": 6
+      },
+      "random": {
+        "status": "pass",
+        "count": 40
+      },
+      "stress": {
+        "status": "pass",
+        "count": 2
+      }
+    }
+  },
+  {
+    "problem": "lis_length",
+    "sample": 0,
+    "code": "from bisect import bisect_left\n\ndef lis_length(nums: list[int]) -> int:\n    \"\"\"\n    Length of the longest strictly increasing subsequence.\n    0 <= len(nums) <= 10^5.\n\n    >>> lis_length([10, 9, 2, 5, 3, 7, 101, 18])\n    4\n    >>> lis_length([0, 1, 0, 3, 2, 3])\n    4\n    \"\"\"\n    tails: list[int] = []          # tails[i] = smallest ending value of an increasing subsequence of length i+1\n    for x in nums:\n        # Find the insertion point for x in tails to keep tails sorted.\n        # bisect_left ensures strictly increasing: replace equal values.\n        i = bisect_left(tails, x)\n        if i == len(tails):\n            tails.append(x)\n        else:\n            tails[i] = x\n    return len(tails)\n",
+    "results": {
+      "base": {
+        "status": "pass",
+        "count": 2
+      },
+      "edge": {
+        "status": "pass",
+        "count": 6
+      },
+      "random": {
+        "status": "pass",
+        "count": 40
+      },
+      "stress": {
+        "status": "pass",
+        "count": 2
+      }
+    }
+  },
+  {
+    "problem": "to_roman",
+    "sample": 0,
+    "code": "def to_roman(n: int) -> str:\n    \"\"\"Convert 1 <= n <= 3999 to a Roman numeral using subtractive notation (IV, IX, XL, XC, CD, CM).\n    >>> to_roman(58)\n    'LVIII'\n    >>> to_roman(1994)\n    'MCMXCIV'\n    \"\"\"\n    if not (1 <= n <= 3999):\n        raise ValueError(\"n must be between 1 and 3999 inclusive\")\n\n    # Ordered list of (value, numeral) pairs from largest to smallest\n    values = [\n        (1000, \"M\"),\n        (900,  \"CM\"),\n        (500,  \"D\"),\n        (400,  \"CD\"),\n        (100,  \"C\"),\n        (90,   \"XC\"),\n        (50,   \"L\"),\n        (40,   \"XL\"),\n        (10,   \"X\"),\n        (9,    \"IX\"),\n        (5,    \"V\"),\n        (4,    \"IV\"),\n        (1,    \"I\"),\n    ]\n\n    result = []\n    for value, numeral in values:\n        if n == 0:\n            break\n        count, n = divmod(n, value)\n        result.append(numeral * count)\n    return \"\".join(result)\n",
+    "results": {
+      "base": {
+        "status": "pass",
+        "count": 2
+      },
+      "edge": {
+        "status": "pass",
+        "count": 12
+      },
+      "random": {
+        "status": "pass",
+        "count": 40
+      },
+      "stress": {
+        "status": "pass",
+        "count": 2
+      }
+    }
+  },
+  {
+    "problem": "running_median",
+    "sample": 0,
+    "code": "import heapq\nfrom typing import List\n\ndef running_median(nums: List[int]) -> List[float]:\n    \"\"\"\n    After each element is added, record the median of all elements so far.\n    For an even count the median is the mean of the two middle values.\n    Return floats.\n    0 <= len(nums) <= 5*10^4.\n    >>> running_median([5, 15, 1, 3])\n    [5.0, 10.0, 5.0, 4.0]\n    \"\"\"\n    if not nums:\n        return []\n\n    # max-heap for the lower half (invert values for heapq)\n    lower = []\n    # min-heap for the upper half\n    upper = []\n\n    medians: List[float] = []\n\n    for i, num in enumerate(nums):\n        # Insert into appropriate heap\n        if not lower or num <= -lower[0]:\n            heapq.heappush(lower, -num)\n        else:\n            heapq.heappush(upper, num)\n\n        # Rebalance heaps so that len(lower) == len(upper) or len(lower) == len(upper)+1\n        if len(lower) > len(upper) + 1:\n            heapq.heappush(upper, -heapq.heappop(lower))\n        elif len(upper) > len(lower):\n            heapq.heappush(lower, -heapq.heappop(upper))\n\n        # Compute median\n        if len(lower) == len(upper):\n            median = (-lower[0] + upper[0]) / 2.0\n        else:\n            median = float(-lower[0])\n\n        medians.append(median)\n\n    return medians\n",
+    "results": {
+      "base": {
+        "status": "pass",
+        "count": 1
+      },
+      "edge": {
+        "status": "pass",
+        "count": 6
+      },
+      "random": {
+        "status": "pass",
+        "count": 40
+      },
+      "stress": {
+        "status": "pass",
+        "count": 2
+      }
+    }
+  }
+]
